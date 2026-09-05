@@ -1,45 +1,142 @@
-# INTERFACING-OF-ADC-WITH-ARM-PROCESSOR
+# INTERFACING LED AND PWM, WITH LPC1768 ARM PROCESSOR AND USING ARDUINO.
 
-# AIM: 
-   To interface and toggle the led with ARM LPC 1768 microprocessor           
-           
+# AIM:    
+   To write an embedded c program to interface LED and PWM with ARM processor          LPC1768 and Arduino.
+          
 # COMPONENTS REQUIRED:
+##  HARDWARE:
+ARM LPC1768
 
-## Hardware:
-ARM LPC1343 / LPC1768
-LCD module
-## Software:
-Coocox IDE
+LED
 
+ARDUINO BOARD
+## SOFTWARE:
+KEIL MICRO VISION 4.0 IDE
+
+ARDUINO IDE
 # PROCEDURE:
-Step 1: Go to start All programs  COIDE.
-Step 2: Give a suitable file name for your project and give the destination folder and then next. Step 3: Go to chip NXP LPC 13XX  LPC1343  Next.
-Step 4: Select the required library file (SYSCON and GPIO) from the repository. Step 5: A new project will be created.
-Step 6: Double click on main.c and type the program.
-Step 7: Add the required library source file to the project (Right click on include Add file to group and
-add the source file).
-Step 8: Build the program using build option.
-Step 9: Flash the program by clicking on download code to flash. Step 10: Interface the required component and note down the output. ADD FILES:
-Repository:
-CMSIS core, CMSIS boot, common header files, SYSCON, GPIO.
 
-# Source files:
-simple example.c, Uart Receiver interrupt.c, lcd.c, lcd.h
+
+⮚	Open the Keil software and select the New uvision project from Project Menu as shown below.
+⮚	Browse to your project folder and provide the project name and click on save.
+
+⮚	Once the project is saved a new pop up “Select Device for Target” opens, Select the controller (NXP: LPC1768) from NXP (founded by philips) and click on OK.
+⮚	Select the controller (NXP: LPC1768) and click on OK.
+
+⮚	As LPC1768 needs the startup code, click on Yes option to include the LPC17xx Startup file.
+
+⮚	Create a new file by file → new to write the program.
  
-# DIAGRAM:
+⮚	Type the code.
 
-<img width="923" height="443" alt="image" src="https://github.com/user-attachments/assets/c0045e52-162c-44b8-9d86-a119cc8b754d" />
+⮚	After typing the code save the file as main.c eg. (abc.c).
 
- 
+⮚	Right click target and Add the suitable files to source group1 and header for the project.
+
+⮚	Add the main.c along with system_LPC17xx.c.
+
+⮚	Build the project and fix the compiler errors/warnings if any.
+
+⮚	Code is compiled with no errors. The .bin file is still not generated.
+
+⮚	Right Click on Target Options to select the option for generating .bin file.
+
+⮚	Set IROM1 start address as 0x2000. Bootloader will be stored from 0x0000-0x2000 so application should start from 0x2000
+⮚	Write	the	command	to	generate	the .bin file	from
+.axf file
+Command: fromelf --bin projectname.axf --output filename.bin
+⮚	in c/c++ → include paths → desktop (00-libfiles).
+⮚	.Bin file is generated after a rebuild.
+⮚	Check the project folder for the generated .Bin file. ADD FILES:
+
+# ADD FILES:
+Target1:
+Source group1:
+Startuplpc17xx.s, delay.c , gpio.c , pwm.c , sysytemlpc17xx.c, main.c
+Header:
+ delay.h, gpio.h, pwm.h, stdulils.h
+
+# PIN DIAGRAM :
+
+<img width="619" height="369" alt="image" src="https://github.com/user-attachments/assets/1edfbfc1-a3c4-4bbf-acdb-8f8a5115c04b" />
+
+# CIRCUIT DIAGRAM:
+
+<img width="1071" height="542" alt="image" src="https://github.com/user-attachments/assets/755b6c68-0a13-442f-8f5d-cfbd42db7b9c" />
  
 # PROGRAM:
+```
+#include <lpc17xx.h>
+#include "pwm.h"
+#include "delay.h"
 
+#define CYCLE_TIME 255
+
+/* start the main program */
+int main() 
+{
+    int dutyCycle;
+    SystemInit();             /* Clock and PLL configuration */ 
+    PWM_Init(CYCLE_TIME);     /* Initialize the PWM module and the Cycle time(Ton+Toff) is set to 255(similar to arduino)*/
+    PWM_Start(PWM_2|PWM_3|PWM_4|PWM_5); /* Enable PWM output on PWM_1-PWM_4 (P2_0 - P2_3) */
+
+    while(1)
+    {
+
+        for(dutyCycle=0;dutyCycle<CYCLE_TIME;dutyCycle++) /* Increase the Brightness of the Leds */
+        {
+            PWM_SetDutyCycle(PWM_2,dutyCycle);  //P2_1
+            PWM_SetDutyCycle(PWM_3,dutyCycle);  //P2_2
+            PWM_SetDutyCycle(PWM_4,dutyCycle);  //P2_3
+            PWM_SetDutyCycle(PWM_5,dutyCycle);  //P2_4
+            DELAY_ms(1000);
+        }
+
+        for(dutyCycle=CYCLE_TIME;dutyCycle>0;dutyCycle--) /* Decrease the Brightness of the Leds */
+        {
+            PWM_SetDutyCycle(PWM_1,dutyCycle);  //P2_0
+            PWM_SetDutyCycle(PWM_2,dutyCycle);  //P2_1
+            PWM_SetDutyCycle(PWM_3,dutyCycle);  //P2_2
+            PWM_SetDutyCycle(PWM_4,dutyCycle);  //P2_3
+            DELAY_ms(1000
+			
+			
+			
+			);
+        }
+    }                              
+}
+```
+## ARDUINO PROGRAM:
+```
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  Serial.println("LED ON");
+  delay(1000);
+
+  digitalWrite(LED_BUILTIN, LOW);
+  Serial.println("LED OFF");
+  delay(1000);
+}
+
+```
 
  
-# RESULTS
+# Output:
+
+<img width="647" height="472" alt="image" src="https://github.com/user-attachments/assets/4fb09954-d4b6-47bd-9f05-33de7ce20c5d" />
+
+## ARDUINO OUTPUT:
+<img width="873" height="131" alt="image" src="https://github.com/user-attachments/assets/3abf0731-6cb3-4cac-82ae-86ff69de4277" />
 
 
-
+# Result :
+Thus,an embedded C program is written in order to interface PWM with LPC1768 and in Arduino.
 
 
 
